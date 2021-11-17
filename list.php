@@ -8,15 +8,16 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){     // 最初の条件検索時
      $page = 1;   // 初期表示は1ページ 
     } elseif($_SERVER['REQUEST_METHOD'] === 'GET'){  // ページネーション時 
         if (isset($_GET['page'])) { 
-            [ページ番号を設定処理1]  
+            $page = (int)$_GET['page'];
+            $name = htmlspecialchars($_GET["name"], ENT_QUOTES, 'UTF-8');
         } else { 
-            [ページ番号を設定処理2]  
+            $page = 1;
+            $name = htmlspecialchars($_GET["name"], ENT_QUOTES, 'UTF-8');
     } 
     // スタートのポジションを計算する 
     // 取得するレコードの先頭位置を求める 
     if ($page > 1) { 
-           $start = ($page * 5) - 5;// 例：２ページ目の場合は、『(2ページ目 × 最大表示件数) - 最大表示件数 = 5』 
-           // $start変数に設定 
+           $start = ($page * 5) - 5;// 例：２ページ目の場合は、『(2ページ目 × 最大表示件数) - 最大表示件数 = 5』 $start変数に設定 
      } else { 
             $start = 0;  // 1ページ目の場合は先頭 0 
     } 
@@ -87,9 +88,10 @@ try{
     <div> 
         <p>現在 <?php echo $page; ?> ページ目です。</p> 
         <?php 
-        $page_num = $dbh->prepare("SELECT COUNT(*) id FROM user"); 
-        $page_num->execute(); 
-        $page_num = $page_num->fetchColumn(); 
+            $stmt = $dbh->prepare("SELECT COUNT(*) id FROM user WHERE name like :name"); 
+            $stmt->bindValue(':name', '%'.$name.'%', PDO::PARAM_STR); 
+            $stmt->execute(); 
+            $page_num = $stmt->fetchColumn();  
         // ページネーションの数を取得する 
         $pagination = ceil($page_num / 5); 
         ?> 
@@ -99,7 +101,7 @@ try{
                 echo $x; 
             } else { 
                 echo ' '; 
-                echo '<a href=?page='. $x. '>'. $x. '</a>'; 
+                echo '<a href=?page='. $x. '&name='. $name.'>'. $x. '</a>'; 
                 echo ' '; 
             } 
         } 
