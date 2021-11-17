@@ -97,7 +97,7 @@ try{
         ?> 
         <?php  
         for ($x=1; $x <= $pagination ; $x++) { 
-            if([表示ページの場合]){ 
+            if($page == 1){ 
                 echo $x; 
             } else { 
                 echo ' '; 
